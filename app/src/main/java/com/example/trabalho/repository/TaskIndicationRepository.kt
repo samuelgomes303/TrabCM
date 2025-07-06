@@ -10,6 +10,8 @@ class TaskIndicationRepository(private val taskIndicationDao: TaskIndicationDao)
 
     suspend fun createAssignment(assignment: TaskIndicationEntity) = taskIndicationDao.createAssignment(assignment)
 
+    suspend fun getProjectsByUser(userId: String) = taskIndicationDao.getProjectsByUser(userId)
+
     suspend fun deleteAssignment(assignment: TaskIndicationEntity) = taskIndicationDao.deleteAssignment(assignment)
 
     suspend fun assignTaskToUser(taskId: String, userId: String) {

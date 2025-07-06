@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.trabalho.MOD.BaseDados
 import com.example.trabalho.databinding.ActivityLoginBinding
+import com.example.trabalho.repository.UserRepository
 import com.example.trabalho.viewModel.LoginViewModel
 import com.example.trabalho.viewModel.LoginViewModelFactory
 import kotlinx.coroutines.launch
@@ -22,6 +24,12 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        lifecycleScope.launch {
+            val db = BaseDados.getInstance(this@LoginActivity)
+            val userRepo = UserRepository(db.userDao())
+            userRepo.createAdminIfNotExists()
+        }
         setupClickListeners()
         observeViewModel()
     }

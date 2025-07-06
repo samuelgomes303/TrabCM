@@ -2,6 +2,7 @@ package com.example.trabalho.repository
 
 import com.example.trabalho.DAO.UserDao
 import com.example.trabalho.data.UserEntity
+import java.security.MessageDigest
 import java.util.UUID
 
 class UserRepository(private val userDao: UserDao) {
@@ -22,15 +23,21 @@ class UserRepository(private val userDao: UserDao) {
         val existingAdmin = getUserByEmail(adminEmail)
 
         if (existingAdmin == null) {
+            val passwordPlain = "admin123"
+            val passwordHash = passwordPlain.sha256() // faz o hash igual ao login
+
             val admin = UserEntity(
                 id = UUID.randomUUID().toString(),
                 nome = "Administrator",
                 email = adminEmail,
-                password = "admin123", // In production, use a secure hash
+                password = passwordHash,
                 role = "ADMINISTRADOR",
                 urlFoto = null
             )
             createUser(admin)
         }
     }
+    private fun String.sha256() = MessageDigest.getInstance("SHA-256")
+        .digest(toByteArray())
+        .joinToString("") { "%02x".format(it) }
 }
