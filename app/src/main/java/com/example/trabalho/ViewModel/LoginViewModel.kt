@@ -27,7 +27,7 @@ class LoginViewModel(private val repo: UserRepository, private val app: Applicat
             try {
                 _loginState.value = LoginState.Loading
 
-                // Validações básicas
+                //validaçoes
                 when {
                     email.isBlank() -> {
                         _loginState.value = LoginState.Error("Email é obrigatório")
@@ -38,7 +38,7 @@ class LoginViewModel(private val repo: UserRepository, private val app: Applicat
                         return@launch
                     }
                     password.isBlank() -> {
-                        _loginState.value = LoginState.Error("Senha é obrigatória")
+                        _loginState.value = LoginState.Error("Password é obrigatória")
                         return@launch
                     }
                 }
@@ -46,7 +46,7 @@ class LoginViewModel(private val repo: UserRepository, private val app: Applicat
                 val user = repo.getUserByEmail(email)
                 val senhaHash = password.sha256()
                 if (user == null || user.password != senhaHash) {
-                    _loginState.value = LoginState.Error("Credenciais inválidas")
+                    _loginState.value = LoginState.Error("Dados inválidos")
                     return@launch
                 }
                 _loginState.value = LoginState.Success(user)

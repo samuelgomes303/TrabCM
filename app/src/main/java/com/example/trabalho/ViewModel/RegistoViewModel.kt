@@ -33,9 +33,9 @@ class RegistoViewModel(private val repo: UserRepository, private val app: Applic
                     nome.isBlank() -> "Nome é obrigatório"
                     email.isBlank() -> "Email é obrigatório"
                     !isValidEmail(email) -> "Email inválido"
-                    senha.isBlank() -> "Senha é obrigatória"
-                    senha != confirmarSenha -> "As senhas não coincidem"
-                    repo.getUserByEmail(email) != null -> "E‑mail já registado"
+                    senha.isBlank() -> "Password é obrigatória"
+                    senha != confirmarSenha -> "As passwords não coincidem"
+                    repo.getUserByEmail(email) != null -> "E‑mail já existe"
                     else -> null
                 }
                 msgErro?.let {
@@ -43,16 +43,15 @@ class RegistoViewModel(private val repo: UserRepository, private val app: Applic
                     return@launch
                 }
 
-                /* ---------- “Salvar” a foto ---------- */
+                // permite guardar null
                 val fotoGuardada: String = when (fotoUri) {
-                    null -> "SEM_FOTO"                          // <‑‑ valor fixo quando não há imagem
-                    else -> fotoUri.toString()                  // ou copia para interno, se preferires
+                    null -> "SEM_FOTO"
+                    else -> fotoUri.toString()
                 }
 
-                /* 3) (Opcional) Hash da senha */
                 val senhaHash = senha.sha256()
 
-                /* 4) Criar entidade e gravar */
+                //criar e guardar user
                 val userEntity = UserEntity(
                     id   = UUID.randomUUID().toString(),
                     nome = nome,
@@ -65,7 +64,7 @@ class RegistoViewModel(private val repo: UserRepository, private val app: Applic
                     repo.createUser(userEntity)
                     _registoState.value = RegistoState.Success
                 } catch (e: Exception) {
-                    _registoState.value = RegistoState.Error("Erro ao gravar: ${e.message}")
+                    _registoState.value = RegistoState.Error("Erro ao guardar: ${e.message}")
                 }
         }
 

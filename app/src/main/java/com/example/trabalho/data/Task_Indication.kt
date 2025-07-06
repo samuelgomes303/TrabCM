@@ -23,5 +23,5 @@ import androidx.room.ForeignKey
 data class TaskIndicationEntity(
     val idTask: String,
     val idUser: String,
-    val indicationDate: Long  //data da atribuiçao da tarefa
+    val indicationDate: Long
 )

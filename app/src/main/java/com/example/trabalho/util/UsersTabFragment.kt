@@ -38,7 +38,6 @@ class UsersTabFragment : Fragment() {
     }
 
     private val adapter = UsersAdapter { user ->
-        // TODO: ação ao clicar no utilizador (ex: abrir diálogo para editar)
     }
 
     override fun onCreateView(
@@ -53,16 +52,15 @@ class UsersTabFragment : Fragment() {
 
         binding.recyclerUsers.adapter = adapter
 
-        // Mostrar botão criar só para admin
+        //mostra o botão criar so para admin
         binding.fabCriarUser.visibility = if (role.uppercase() == "ADMINISTRADOR") VISIBLE else GONE
 
         binding.fabCriarUser.setOnClickListener {
-            // TODO: abrir diálogo para criar utilizador
         }
 
-        // Carregar lista de utilizadores
+        //carregar lista de utilizadores
         lifecycleScope.launch {
-            val lista = userManager.getAllUsers()   // retorna List<UserEntity>
+            val lista = userManager.getAllUsers()
             adapter.submitList(lista)
         }
     }
@@ -72,7 +70,7 @@ class UsersTabFragment : Fragment() {
         _binding = null
     }
 
-    // Adapter simples dentro do fragment
+    //adapter para listar os users
     private inner class UsersAdapter(
         val onUserClick: (UserEntity) -> Unit
     ) : ListAdapter<UserEntity, UsersAdapter.UserViewHolder>(UserDiffCallback()) {

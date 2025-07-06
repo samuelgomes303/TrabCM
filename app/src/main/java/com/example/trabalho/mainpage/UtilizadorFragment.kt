@@ -13,9 +13,9 @@ class UtilizadorFragment : Fragment() {
 
     private lateinit var userId: String
 
+    //usa o id do utilizador passado no login
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Recupera o ID do utilizador gravado no login
         userId = requireContext()
             .getSharedPreferences("sessao", Context.MODE_PRIVATE)
             .getString("ID", "") ?: ""
@@ -24,14 +24,13 @@ class UtilizadorFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Layout simples com FrameLayout‑container
         return inflater.inflate(R.layout.fragment_utilizador, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Injeta o fragmento que lista os projetos associados
+        //frag com os projetos associados
         childFragmentManager.beginTransaction()
             .replace(
                 R.id.containerUtilizador,

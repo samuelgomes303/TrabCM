@@ -18,10 +18,9 @@ class TaskViewModel( private val taskIndicationRepo: TaskIndicationRepository, p
     fun carregarTarefasDoUtilizador(userId: String) {
         viewModelScope.launch {
             try {
-                // 1. Obtem associações (tasks indicadas para o user)
+                //tasks indicadas para o user
                 val assignments = taskIndicationRepo.getAssignmentsByUser(userId)
 
-                // 2. Para cada associação, busca a tarefa correspondente
                 val tasks = assignments.mapNotNull { assignment ->
                     taskRepo.getTaskById(assignment.idTask)
                 }
@@ -29,7 +28,7 @@ class TaskViewModel( private val taskIndicationRepo: TaskIndicationRepository, p
                 _tasks.value = tasks
 
             } catch (e: Exception) {
-                _tasks.value = emptyList() // ou reportar erro
+                _tasks.value = emptyList()
             }
         }
     }

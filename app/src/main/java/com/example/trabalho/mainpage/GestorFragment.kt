@@ -24,7 +24,7 @@ class GestorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Lê o id do gestor das SharedPreferences
+        //vai buscar o id do gestor as SharedPreferences do projeto
         gestorId = requireContext()
             .getSharedPreferences("sessao", Context.MODE_PRIVATE)
             .getString("ID", "") ?: ""
@@ -34,7 +34,7 @@ class GestorFragment : Fragment() {
         tabLayout.addTab(tabLayout.newTab().setText("Projetos"))
         tabLayout.addTab(tabLayout.newTab().setText("Estatísticas"))
 
-        // Aba por defeito
+        //entra por defeito na lista de projetos
         replaceFragment(ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO", gestorId))
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -43,7 +43,6 @@ class GestorFragment : Fragment() {
                     0 -> replaceFragment(
                         ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO", gestorId)
                     )
-                    //1 -> replaceFragment(EstatisticasTabFragment()) // placeholder
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}

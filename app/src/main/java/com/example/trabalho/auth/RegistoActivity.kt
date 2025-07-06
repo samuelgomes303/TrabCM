@@ -19,7 +19,7 @@ class RegistoActivity : AppCompatActivity() {
     }
     private var selectedImageUri: Uri? = null
 
-    // Registro para seleção de imagem
+    // seleção de imagem(nao funciona)
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedImageUri = it

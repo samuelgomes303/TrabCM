@@ -20,8 +20,9 @@ import kotlinx.coroutines.launch
 
 class ProjetoGestaoTabFragment : Fragment() {
     companion object {
+        //recebe o id do gestor autenticado
         private const val ARG_ROLE = "ROLE"
-        private const val ARG_USER_ID = "USER_ID" // ID do gestor autenticado
+        private const val ARG_USER_ID = "USER_ID"
         fun newInstance(role: String, userId: String) =
             ProjetoGestaoTabFragment().apply {
                 arguments = bundleOf(ARG_ROLE to role, ARG_USER_ID to userId)
@@ -72,7 +73,7 @@ class ProjetoGestaoTabFragment : Fragment() {
             // TODO: abrir tela para criar novo projeto
         }
 
-        // Carregar projetos do gestor autenticado
+        //carrega os projetos do gestor
         lifecycleScope.launch {
             val projetos = projectRepo.getProjectsByManager(gestorId)
             adapter.submitList(projetos)
@@ -89,12 +90,10 @@ class ProjetoGestaoTabFragment : Fragment() {
     }
 
     private fun openAssociarUsuariosDialog(project: ProjectEntity) {
-        // TODO: abrir dialog para selecionar e associar usuários
         showMessage("Associar usuários ao projeto: ${project.nome}")
     }
 
     private fun openCriarTarefaDialog(project: ProjectEntity) {
-        // TODO: abrir dialog para criar tarefa associada a usuário do projeto
         showMessage("Criar tarefa no projeto: ${project.nome}")
     }
 
@@ -117,7 +116,7 @@ class ProjetoGestaoTabFragment : Fragment() {
 
             fun bind(p: ProjectEntity) = with(b) {
                 txtNomeProjeto.text = p.nome
-                txtGestorNome.text  = p.idGestor    // ou buscar nome via UserRepo
+                txtGestorNome.text  = p.idGestor
                 txtEstado.text      = when (p.state) {
                     "CONCLUIDO"    -> "Concluído"
                     "EM_PROGRESSO" -> "Em Progresso"
@@ -125,7 +124,6 @@ class ProjetoGestaoTabFragment : Fragment() {
                     else           -> "Desconhecido"
                 }
 
-                // Realce visual
                 val sel = (p == selectedProject)
                 itemView.setBackgroundColor(
                     if (sel) resources.getColor(android.R.color.holo_blue_light, null)
@@ -133,7 +131,7 @@ class ProjetoGestaoTabFragment : Fragment() {
                 )
 
                 itemView.setOnClickListener {
-                    selectedProject = if (sel) null else p   // desfaz se clicar no mesmo
+                    selectedProject = if (sel) null else p
                     updateActionButtonsVisibility()
                     this@ProjectsAdapter.notifyDataSetChanged()
                 }

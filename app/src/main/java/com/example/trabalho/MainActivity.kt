@@ -15,14 +15,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Mostrar LoginFragment imediatamente
+        //abre com o frag login
         navigateToLogin()
     }
 
     private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
-        finish() // Finaliza MainActivity se não for necessária após login
+        finish()
     }
 
     fun navigateToRegisto() {

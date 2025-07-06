@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class ProjetosAssociadosTabFragment : Fragment() {
 
-    /* ---------- factory ---------- */
+
     companion object {
         private const val ARG_USER_ID = "USER_ID"
         fun newInstance(userId: String) =
@@ -28,11 +28,11 @@ class ProjetosAssociadosTabFragment : Fragment() {
             }
     }
 
-    /* ---------- binding ---------- */
+
     private var _binding: FragmentProjetosAssociadosTabBinding? = null
     private val binding get() = _binding!!
 
-    /* ---------- args & repos ---------- */
+
     private val userId by lazy { requireArguments().getString(ARG_USER_ID) ?: "" }
 
     private val taskIndicationRepo by lazy {
@@ -41,10 +41,10 @@ class ProjetosAssociadosTabFragment : Fragment() {
         )
     }
 
-    /* ---------- adapter ---------- */
+
     private val adapter = ProjectsAdapter()
 
-    /* ---------- ciclo de vida ---------- */
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -57,6 +57,7 @@ class ProjetosAssociadosTabFragment : Fragment() {
 
         binding.recyclerProjetos.adapter = adapter
 
+        //lista os projetos passados pelo repository
         lifecycleScope.launch {
             val projetos = taskIndicationRepo.getProjectsByUser(userId)
             adapter.submitList(projetos)
@@ -68,7 +69,7 @@ class ProjetosAssociadosTabFragment : Fragment() {
         super.onDestroyView()
     }
 
-    /* ---------- Adapter interno ---------- */
+    // adapter para a lista de projetos e tarefas
     private inner class ProjectsAdapter : ListAdapter<ProjectEntity, ProjectsAdapter.ProjectVH>(ProjectDiff()) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProjectVH {
@@ -95,14 +96,12 @@ class ProjetosAssociadosTabFragment : Fragment() {
                 }
 
                 root.setOnClickListener {
-                    // TODO: abrir as tarefas DO utilizador dentro deste projeto
-                    // parentFragmentManager.beginTransaction()...
+                    // logica dentro da tarefa(por fazer)
                 }
             }
         }
     }
 
-    /* ---------- DiffUtil ---------- */
     private class ProjectDiff : DiffUtil.ItemCallback<ProjectEntity>() {
         override fun areItemsTheSame(old: ProjectEntity, new: ProjectEntity) = old.id == new.id
         override fun areContentsTheSame(old: ProjectEntity, new: ProjectEntity) = old == new

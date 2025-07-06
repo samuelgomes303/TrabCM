@@ -10,7 +10,7 @@ class ProjectRepository(private val projectDao: ProjectDao) {
     suspend fun getProjectById(id: String) = projectDao.getProjectById(id)
 
     suspend fun getProjectsByManager(gestorId: String) = projectDao.getProjectsByManager(gestorId)
-    //Associar utilizadores a projetos
+
     suspend fun addUserToProject(userId: String, projectId: String) = projectDao.getAllProjects()
 
     suspend fun createProject(project: ProjectEntity) = projectDao.createProject(project)

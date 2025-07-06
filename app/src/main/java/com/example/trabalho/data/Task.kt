@@ -22,9 +22,9 @@ data class TaskEntity(
     val title: String,
     val description: String,
     val startDate: Long,
-    val finishDate: Long?,// data do dia final do projeto
+    val finishDate: Long?,
     val finishPerc: Float,
-    val state: String, // "A_FAZER", "EM_PROGRESSO", "CONCLUIDO"
+    val state: String,
     val local: String?,
     val timeSpent: Long
 )

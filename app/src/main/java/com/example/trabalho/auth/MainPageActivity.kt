@@ -16,11 +16,10 @@ class MainPageActivity : AppCompatActivity() {
         binding = ActivityMainPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1) Descobre o role
+        // procura pelo role
         val role = intent.getStringExtra("ROLE")
             ?: getSharedPreferences("sessao", MODE_PRIVATE).getString("ROLE", "UTILIZADOR")
 
-        // 2) Carrega o fragment adequado
         val fragment = when (role?.uppercase()) {
             "ADMINISTRADOR"  -> AdminFragment()
             "GESTOR_PROJETO" -> GestorFragment()

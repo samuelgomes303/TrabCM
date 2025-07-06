@@ -24,12 +24,11 @@ class AdminFragment : Fragment() {
 
         tabLayout = view.findViewById(R.id.adminTabLayout)
 
-        // Abas
         tabLayout.addTab(tabLayout.newTab().setText("Projetos"))
         tabLayout.addTab(tabLayout.newTab().setText("Utilizadores"))
         tabLayout.addTab(tabLayout.newTab().setText("Estatísticas"))
 
-        // Primeira aba (Projetos) por defeito
+        //entra por defeito com os projetos
         replaceFragment(ProjetoGestaoTabFragment())
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -37,24 +36,19 @@ class AdminFragment : Fragment() {
                 when (tab.position) {
                     0 -> replaceFragment(ProjetoGestaoTabFragment())
                     1 -> replaceFragment(UsersTabFragment())
-                    //2 -> replaceFragment(EstatisticasTabFragment()) // placeholder
+                    //2 -> replaceFragment(EstatisticasTabFragment())
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
     }
-
+    //entra por defeito com o frag admin
     private fun replaceFragment(fragment: Fragment) {
         childFragmentManager.beginTransaction()
-            .replace(R.id.containerProjetos, fragment)   // container no layout fragment_admin.xml
+            .replace(R.id.containerProjetos, fragment)
             .commit()
     }
 }
 
-/* -------------- Placeholder simples -------------- */
-//class EstatisticasTabFragment : Fragment() {
-  //  override fun onCreateView(
-    //    inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    //): View = inflater.inflate(R.layout.fragment_estatisticas_placeholder, container, false)
-//}
+

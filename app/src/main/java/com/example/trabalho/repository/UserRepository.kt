@@ -24,7 +24,7 @@ class UserRepository(private val userDao: UserDao) {
 
         if (existingAdmin == null) {
             val passwordPlain = "admin123"
-            val passwordHash = passwordPlain.sha256() // faz o hash igual ao login
+            val passwordHash = passwordPlain.sha256()
 
             val admin = UserEntity(
                 id = UUID.randomUUID().toString(),

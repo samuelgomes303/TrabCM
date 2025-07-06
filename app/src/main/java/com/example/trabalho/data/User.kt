@@ -9,7 +9,7 @@ data class UserEntity(
     val id: String,
     val nome: String,
     val email: String,
-    val password: String, // Nota: Em produção, nunca armazene senhas em texto plano
+    val password: String,
     val role: String, // "ADMINISTRADOR", "GESTOR_PROJETO", "UTILIZADOR"
     val urlFoto: String?
 )
