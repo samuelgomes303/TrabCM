@@ -1,52 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginVertical="4dp"
-    android:elevation="2dp">
+    android:padding="12dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textProjectName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:text="Nome do projeto" />
 
-        <!-- Nome do projeto -->
-        <TextView
-            android:id="@+id/txtNomeProjeto"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Nome do Projeto"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:ellipsize="end"
-            android:maxLines="1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    <ImageButton
+        android:id="@+id/btnEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_edit"
+        android:contentDescription=""
+        android:background="?attr/selectableItemBackgroundBorderless"/>
 
-        <!-- Gestor (opcional – só aparece no layout de gestão) -->
-        <TextView
-            android:id="@+id/txtGestorNome"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Gestor: ‑‑"
-            android:textSize="14sp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            app:layout_constraintTop_toBottomOf="@id/txtNomeProjeto"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <!-- Estado (Em progresso, Concluído, Cancelado) -->
-        <TextView
-            android:id="@+id/txtEstado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Em progresso"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/txtGestorNome"
-            app:layout_constraintStart_toStartOf="parent"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_delete"
+        android:contentDescription=""
+        android:background="?attr/selectableItemBackgroundBorderless"/>
+</LinearLayout>

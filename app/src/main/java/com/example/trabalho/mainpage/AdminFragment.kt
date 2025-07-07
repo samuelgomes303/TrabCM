@@ -1,6 +1,8 @@
 package com.example.trabalho.mainpage
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +15,14 @@ import com.google.android.material.tabs.TabLayout
 class AdminFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
+
+    private val userId by lazy {
+        requireContext()
+            .getSharedPreferences("sessao", Context.MODE_PRIVATE)
+            .getString("ID", "") ?: ""
+    }
+
+    private val role by lazy { "ADMINISTRADOR" }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,27 +38,27 @@ class AdminFragment : Fragment() {
         tabLayout.addTab(tabLayout.newTab().setText("Utilizadores"))
         tabLayout.addTab(tabLayout.newTab().setText("Estatísticas"))
 
-        //entra por defeito com os projetos
-        replaceFragment(ProjetoGestaoTabFragment())
+        // Fragmento inicial por defeito
+        replaceFragment(ProjetoGestaoTabFragment.newInstance(role))
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
-                    0 -> replaceFragment(ProjetoGestaoTabFragment())
-                    1 -> replaceFragment(UsersTabFragment())
-                    //2 -> replaceFragment(EstatisticasTabFragment())
+                    0 -> replaceFragment(ProjetoGestaoTabFragment.newInstance(role))
+                    1 -> replaceFragment(UsersTabFragment.newInstance(role, userId))
+                    // 2 -> replaceFragment(EstatisticasTabFragment())  // se/quando necessário
                 }
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
     }
-    //entra por defeito com o frag admin
+
     private fun replaceFragment(fragment: Fragment) {
+        Log.d("AdminDebug", "replaceFragment -> ${fragment::class.simpleName}")
         childFragmentManager.beginTransaction()
             .replace(R.id.containerProjetos, fragment)
             .commit()
     }
 }
-
-

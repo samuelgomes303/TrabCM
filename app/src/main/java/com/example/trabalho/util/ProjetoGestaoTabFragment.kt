@@ -1,151 +1,204 @@
 package com.example.trabalho.util
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trabalho.MOD.BaseDados
+import com.example.trabalho.R
 import com.example.trabalho.data.ProjectEntity
-import com.example.trabalho.databinding.FragmentProjetoGestaoTabBinding
-import com.example.trabalho.databinding.ItemProjectBinding
+import com.example.trabalho.databinding.DialogEditProjectBinding
+import com.example.trabalho.databinding.FragmentProjetoTabBinding
 import com.example.trabalho.repository.ProjectRepository
+import com.example.trabalho.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class ProjetoGestaoTabFragment : Fragment() {
+
     companion object {
-        //recebe o id do gestor autenticado
         private const val ARG_ROLE = "ROLE"
-        private const val ARG_USER_ID = "USER_ID"
-        fun newInstance(role: String, userId: String) =
-            ProjetoGestaoTabFragment().apply {
-                arguments = bundleOf(ARG_ROLE to role, ARG_USER_ID to userId)
-            }
+        fun newInstance(role: String) = ProjetoGestaoTabFragment().apply {
+            arguments = bundleOf(ARG_ROLE to role)
+        }
     }
 
-    private var _binding: FragmentProjetoGestaoTabBinding? = null
-    private val binding get() = _binding!!
 
-    private val role by lazy { arguments?.getString(ARG_ROLE) ?: "UTILIZADOR" }
-    private val gestorId by lazy { arguments?.getString(ARG_USER_ID) ?: "" }
+    private var _b: FragmentProjetoTabBinding? = null
+    private val b get() = _b!!
 
-    private val projectRepo by lazy {
-        ProjectRepository(BaseDados.getInstance(requireContext()).projectDao())
-    }
+    //repositorios
+    private lateinit var projectRepo: ProjectRepository
+    private lateinit var userRepo: UserRepository
 
-    private var selectedProject: ProjectEntity? = null
-
+    //adapter
     private val adapter = ProjectsAdapter()
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentProjetoGestaoTabBinding.inflate(inflater, container, false)
-        return binding.root
+    override fun onAttach(ctx: Context) {
+        super.onAttach(ctx)
+        val db = BaseDados.getInstance(ctx)
+        projectRepo = ProjectRepository(db.projectDao())
+        userRepo    = UserRepository(db.userDao())
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
+        _b = FragmentProjetoTabBinding.inflate(i, c, false)
+        return b.root
+    }
 
-        binding.recyclerProjetos.adapter = adapter
-        updateActionButtonsVisibility()
+    override fun onViewCreated(v: View, s: Bundle?) {
+        super.onViewCreated(v, s)
 
-        binding.btnAssociarUsuarios.setOnClickListener {
-            selectedProject?.let { project ->
-                openAssociarUsuariosDialog(project)
-            } ?: showMessage("Selecione um projeto")
+        // recycler de projetos
+        b.recyclerProjects.layoutManager = LinearLayoutManager(requireContext())
+        b.recyclerProjects.adapter = adapter
+
+        // só para ADMIN
+        val role = requireArguments().getString(ARG_ROLE) ?: "UTILIZADOR"
+        b.fabCriarProjeto.visibility =
+            if (role.uppercase() == "ADMINISTRADOR") View.VISIBLE else View.GONE
+
+        b.fabCriarProjeto.setOnClickListener { abrirDialogoCriarProjeto() }
+
+        //remove ou edita e atualiza
+        adapter.onEditClick   = { abrirDialogoEditarProjeto(it) }
+        adapter.onDeleteClick = { proj ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Remover projeto")
+                .setMessage("Remover \"${proj.nome}\"?")
+                .setPositiveButton("Sim") { _, _ ->
+                    lifecycleScope.launch {
+                        projectRepo.deleteProject(proj)
+                        refreshProjects()
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
 
-        binding.btnCriarTarefa.setOnClickListener {
-            selectedProject?.let { project ->
-                openCriarTarefaDialog(project)
-            } ?: showMessage("Selecione um projeto")
-        }
+        refreshProjects()
+    }
 
-        binding.fabNovoProjeto.setOnClickListener {
-            // TODO: abrir tela para criar novo projeto
-        }
+    //input para criar projeto
+    private fun abrirDialogoCriarProjeto() {
+        val dBind = DialogEditProjectBinding.inflate(layoutInflater)
 
-        //carrega os projetos do gestor
         lifecycleScope.launch {
-            val projetos = projectRepo.getProjectsByManager(gestorId)
-            adapter.submitList(projetos)
+            val gestores = userRepo.getAllUsers().filter { it.role == "GESTOR_PROJETO" }
+            val nomes    = gestores.map { it.nome }
+            val ids      = gestores.map { it.id }
+
+            dBind.spinnerGestor.adapter =
+                ArrayAdapter(requireContext(),
+                    android.R.layout.simple_spinner_dropdown_item, nomes)
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Novo Projeto")
+                .setView(dBind.root)
+                .setPositiveButton("Guardar") { _, _ ->
+                    val nome = dBind.editNome.text.toString().trim()
+                    if (nome.isBlank()) return@setPositiveButton
+
+                    val desc   = dBind.editDescription.text.toString().trim()
+                    val idxSel = dBind.spinnerGestor.selectedItemPosition
+                    val idGest = ids.getOrElse(idxSel) { "" }
+
+                    lifecycleScope.launch {
+                        projectRepo.createNewProject(nome, desc, idGest)
+                        refreshProjects()
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
     }
 
-    private fun updateActionButtonsVisibility() {
-        val visible = role.uppercase() == "GESTOR_PROJETO" && selectedProject != null
-        binding.layoutBottomButtons.visibility = if (visible) View.VISIBLE else View.GONE
+    private fun abrirDialogoEditarProjeto(p: ProjectEntity) {
+        val dBind = DialogEditProjectBinding.inflate(layoutInflater)
+        dBind.editNome.setText(p.nome)
+        dBind.editDescription.setText(p.description)
+
+        lifecycleScope.launch {
+            val gestores = userRepo.getAllUsers().filter { it.role == "GESTOR_PROJETO" }
+            val nomes    = gestores.map { it.nome }
+            val ids      = gestores.map { it.id }
+
+            dBind.spinnerGestor.adapter =
+                ArrayAdapter(requireContext(),
+                    android.R.layout.simple_spinner_dropdown_item, nomes)
+
+            dBind.spinnerGestor.setSelection(ids.indexOf(p.idGestor).coerceAtLeast(0))
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Editar Projeto")
+                .setView(dBind.root)
+                .setPositiveButton("Guardar") { _, _ ->
+                    val novo = p.copy(
+                        nome        = dBind.editNome.text.toString().trim(),
+                        description = dBind.editDescription.text.toString().trim(),
+                        idGestor    = ids.getOrElse(
+                            dBind.spinnerGestor.selectedItemPosition
+                        ) { p.idGestor }
+                    )
+                    lifecycleScope.launch {
+                        projectRepo.updateProject(novo)
+                        refreshProjects()
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        }
     }
 
-    private fun showMessage(msg: String) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+
+    private fun refreshProjects() = lifecycleScope.launch {
+        adapter.submitList(projectRepo.getAllProjects())
     }
 
-    private fun openAssociarUsuariosDialog(project: ProjectEntity) {
-        showMessage("Associar usuários ao projeto: ${project.nome}")
-    }
-
-    private fun openCriarTarefaDialog(project: ProjectEntity) {
-        showMessage("Criar tarefa no projeto: ${project.nome}")
-    }
+    override fun onDestroyView() { super.onDestroyView(); _b = null }
 
 
     private inner class ProjectsAdapter :
-        ListAdapter<ProjectEntity, ProjectsAdapter.ProjectVH>(ProjectDiffCallback) {
+        ListAdapter<ProjectEntity, ProjectsAdapter.VH>(Diff) {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProjectVH {
-            val row = ItemProjectBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
-            return ProjectVH(row)
+        var onEditClick:   (ProjectEntity) -> Unit = {}
+        var onDeleteClick: (ProjectEntity) -> Unit = {}
+
+        override fun onCreateViewHolder(p: ViewGroup, v: Int): VH {
+            val row = LayoutInflater.from(p.context)
+                .inflate(R.layout.item_project, p, false)
+            return VH(row)
         }
 
-        override fun onBindViewHolder(holder: ProjectVH, position: Int) =
-            holder.bind(getItem(position))
+        override fun onBindViewHolder(h: VH, pos: Int) = h.bind(getItem(pos))
 
-        inner class ProjectVH(private val b: ItemProjectBinding) :
-            RecyclerView.ViewHolder(b.root) {
+        inner class VH(v: View) : RecyclerView.ViewHolder(v) {
+            private val txt = v.findViewById<TextView>(R.id.textProjectName)
+            private val btnE = v.findViewById<ImageButton>(R.id.btnEdit)
+            private val btnD = v.findViewById<ImageButton>(R.id.btnDelete)
 
-            fun bind(p: ProjectEntity) = with(b) {
-                txtNomeProjeto.text = p.nome
-                txtGestorNome.text  = p.idGestor
-                txtEstado.text      = when (p.state) {
-                    "CONCLUIDO"    -> "Concluído"
-                    "EM_PROGRESSO" -> "Em Progresso"
-                    "CANCELADO"    -> "Cancelado"
-                    else           -> "Desconhecido"
-                }
-
-                val sel = (p == selectedProject)
-                itemView.setBackgroundColor(
-                    if (sel) resources.getColor(android.R.color.holo_blue_light, null)
-                    else     resources.getColor(android.R.color.transparent, null)
-                )
-
-                itemView.setOnClickListener {
-                    selectedProject = if (sel) null else p
-                    updateActionButtonsVisibility()
-                    this@ProjectsAdapter.notifyDataSetChanged()
-                }
+            fun bind(p: ProjectEntity) {
+                txt.text = p.nome
+                btnE.setOnClickListener { onEditClick(p) }
+                btnD.setOnClickListener { onDeleteClick(p) }
             }
         }
     }
 
-    private object ProjectDiffCallback : DiffUtil.ItemCallback<ProjectEntity>() {
+    private object Diff : DiffUtil.ItemCallback<ProjectEntity>() {
         override fun areItemsTheSame(o: ProjectEntity, n: ProjectEntity) = o.id == n.id
         override fun areContentsTheSame(o: ProjectEntity, n: ProjectEntity) = o == n
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

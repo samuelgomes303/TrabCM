@@ -1,4 +1,4 @@
-package com.example.trabalho.ViewModel
+package com.example.trabalho.ViewModel         // mantém o mesmo package
 
 import android.app.Application
 import android.content.Context
@@ -9,10 +9,13 @@ import com.example.trabalho.repository.UserRepository
 import com.example.trabalho.viewModel.RegistoViewModel
 
 class RegistoViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db  = BaseDados.getInstance(context)
+        val db   = BaseDados.getInstance(context)
         val repo = UserRepository(db.userDao())
+        val app  = context.applicationContext as Application
+
         @Suppress("UNCHECKED_CAST")
-        return RegistoViewModel(repo, context.applicationContext as Application) as T
+        return RegistoViewModel(repo, app) as T
     }
 }

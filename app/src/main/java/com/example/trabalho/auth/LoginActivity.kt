@@ -28,7 +28,7 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val db = BaseDados.getInstance(this@LoginActivity)
             val userRepo = UserRepository(db.userDao())
-            userRepo.createAdminIfNotExists()
+            userRepo.seedDefaultUsers()
         }
         setupClickListeners()
         observeViewModel()

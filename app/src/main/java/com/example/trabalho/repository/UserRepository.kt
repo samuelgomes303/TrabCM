@@ -18,25 +18,57 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun deleteUser(user: UserEntity) = userDao.deleteUser(user)
 
-    suspend fun createAdminIfNotExists() {
-        val adminEmail = "admin@admin.com"
-        val existingAdmin = getUserByEmail(adminEmail)
+    suspend fun seedDefaultUsers() {
+        fun hash(pwd: String) = MessageDigest.getInstance("SHA-256")
+            .digest(pwd.toByteArray())
+            .joinToString("") { "%02x".format(it) }
 
-        if (existingAdmin == null) {
-            val passwordPlain = "admin123"
-            val passwordHash = passwordPlain.sha256()
+        // (1) Administrador
+        ensureUser(
+            email = "admin@admin.com",
+            nome  = "Administrator",
+            role  = "ADMINISTRADOR",
+            pwd   = "admin123"
+        )
 
-            val admin = UserEntity(
-                id = UUID.randomUUID().toString(),
-                nome = "Administrator",
-                email = adminEmail,
-                password = passwordHash,
-                role = "ADMINISTRADOR",
-                urlFoto = null
+        // (2) Gestor de Projeto
+        ensureUser(
+            email = "gestor@exemplo.com",
+            nome  = "Gestor Exemplo",
+            role  = "GESTOR_PROJETO",
+            pwd   = "gestor123"
+        )
+
+        // (3) Utilizador normal
+        ensureUser(
+            email = "user@exemplo.com",
+            nome  = "Utilizador Exemplo",
+            role  = "UTILIZADOR",
+            pwd   = "user123"
+        )
+    }
+
+    /** Se o e‑mail ainda não existir, cria-o com hash SHA‑256 da password. */
+    private suspend fun ensureUser(
+        email: String,
+        nome: String,
+        role: String,
+        pwd: String,
+        foto: String? = null
+    ) {
+        if (userDao.getUserByEmail(email) == null) {
+            val user = UserEntity(
+                id       = UUID.randomUUID().toString(),
+                nome     = nome,
+                email    = email,
+                password = pwd.sha256(),
+                role     = role,
+                urlFoto  = foto
             )
-            createUser(admin)
+            userDao.createUser(user)
         }
     }
+
     private fun String.sha256() = MessageDigest.getInstance("SHA-256")
         .digest(toByteArray())
         .joinToString("") { "%02x".format(it) }

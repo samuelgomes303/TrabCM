@@ -35,13 +35,13 @@ class GestorFragment : Fragment() {
         tabLayout.addTab(tabLayout.newTab().setText("Estatísticas"))
 
         //entra por defeito na lista de projetos
-        replaceFragment(ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO", gestorId))
+        replaceFragment(ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO"))
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
                     0 -> replaceFragment(
-                        ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO", gestorId)
+                        ProjetoGestaoTabFragment.newInstance("GESTOR_PROJETO")
                     )
                 }
             }

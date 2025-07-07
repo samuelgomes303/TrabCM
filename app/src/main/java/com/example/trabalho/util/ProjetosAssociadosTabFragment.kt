@@ -55,6 +55,7 @@ class ProjetosAssociadosTabFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         binding.recyclerProjetos.adapter = adapter
 
         //lista os projetos passados pelo repository
@@ -87,14 +88,7 @@ class ProjetosAssociadosTabFragment : Fragment() {
             RecyclerView.ViewHolder(b.root) {
 
             fun bind(p: ProjectEntity) = with(b) {
-                txtNomeProjeto.text = p.nome
-                txtEstado.text = when (p.state) {
-                    "CONCLUIDO"     -> "Concluído"
-                    "EM_PROGRESSO"  -> "Em curso"
-                    "CANCELADO"     -> "Cancelado"
-                    else            -> "Desconhecido"
-                }
-
+                textProjectName.text = p.nome
                 root.setOnClickListener {
                     // logica dentro da tarefa(por fazer)
                 }
